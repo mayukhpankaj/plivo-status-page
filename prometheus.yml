@@ -1,0 +1,25 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  # Prometheus self-monitoring
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # Dynamic service discovery from backend
+  - job_name: 'dynamic-services'
+    file_sd_configs:
+      - files:
+          - /etc/prometheus/services.json
+        refresh_interval: 10s
+    
+    # Relabel to add more useful labels
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+      - source_labels: [org_name]
+        target_label: organization
+      - source_labels: [service_name]
+        target_label: service

@@ -1,0 +1,13 @@
+[
+  {
+    "targets": [
+      "https://escapematrixapp-476326688061.asia-south1.run.app/health"
+    ],
+    "labels": {
+      "org_id": "e009b6af-b21c-4949-9ff0-6dadbbd9de2c",
+      "org_name": "plivo",
+      "service_id": "590398ef-e390-43ce-8e09-b1b333c4dc94",
+      "service_name": "live_kit_infra"
+    }
+  }
+]
