@@ -12,7 +12,7 @@ import publicRouter from './routes/public.js';
 import internalRouter, { setPrometheusSync } from './routes/internal.js';
 
 import { errorHandler, notFoundHandler } from './middleware/errorHandler.js';
-import PrometheusServiceSync from './services/prometheusSync.js';
+import PrometheusServiceSync, { setPrometheusSyncInstance } from './services/prometheusSync.js';
 
 dotenv.config();
 
@@ -46,8 +46,18 @@ app.use(errorHandler);
 if (process.env.PROMETHEUS_SYNC_ENABLED === 'true') {
   const prometheusSync = new PrometheusServiceSync();
   setPrometheusSync(prometheusSync);
-  prometheusSync.start();
-  console.log('✅ Prometheus service discovery sync enabled');
+  setPrometheusSyncInstance(prometheusSync);
+  
+  // Initialize sync on startup (runs once, no periodic syncing)
+  prometheusSync.initialize().then(result => {
+    if (result.success) {
+      console.log('✅ Prometheus service discovery sync initialized successfully');
+    } else {
+      console.error('❌ Prometheus service discovery sync initialization failed:', result.error);
+    }
+  }).catch(error => {
+    console.error('❌ Prometheus service discovery sync initialization error:', error);
+  });
 }
 
 app.listen(PORT, () => {

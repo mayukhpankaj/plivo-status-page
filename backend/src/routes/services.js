@@ -3,6 +3,7 @@ import { supabaseAdmin } from '../config/supabase.js';
 import { authenticateUser } from '../middleware/auth.js';
 import { validateOrganizationAccess, requireAdmin, requireMemberOrAdmin } from '../middleware/tenant.js';
 import { asyncHandler } from '../utils/helpers.js';
+import { triggerPrometheusSync } from '../services/prometheusSync.js';
 
 const router = express.Router({ mergeParams: true });
 
@@ -53,6 +54,17 @@ router.post('/', authenticateUser, validateOrganizationAccess, requireAdmin, asy
   }
 
   console.log('[POST /services] Success: Service created:', service.id);
+  
+  // Trigger Prometheus sync if service has target_url
+  if (service.target_url) {
+    try {
+      await triggerPrometheusSync();
+    } catch (syncError) {
+      console.error('[POST /services] Prometheus sync error:', syncError);
+      // Don't fail the request, just log the error
+    }
+  }
+  
   res.status(201).json({ service });
 }));
 
@@ -98,10 +110,34 @@ router.put('/:id', authenticateUser, validateOrganizationAccess, requireAdmin, a
   }
 
   console.log('[PUT /services/:id] Success: Service updated');
+  
+  // Trigger Prometheus sync if target_url was updated or service has target_url
+  if (target_url !== undefined || service.target_url) {
+    try {
+      await triggerPrometheusSync();
+    } catch (syncError) {
+      console.error('[PUT /services/:id] Prometheus sync error:', syncError);
+      // Don't fail the request, just log the error
+    }
+  }
+  
   res.json({ service });
 }));
 
 router.delete('/:id', authenticateUser, validateOrganizationAccess, requireAdmin, asyncHandler(async (req, res) => {
+  // First get the service to check if it has target_url before deletion
+  const { data: service, error: fetchError } = await supabaseAdmin
+    .from('services')
+    .select('target_url')
+    .eq('id', req.params.id)
+    .eq('organization_id', req.params.orgId)
+    .single();
+
+  if (fetchError) {
+    console.error('[DELETE /services/:id] Error fetching service:', fetchError);
+    return res.status(500).json({ error: 'Failed to fetch service for deletion' });
+  }
+
   const { error } = await supabaseAdmin
     .from('services')
     .delete()
@@ -110,6 +146,16 @@ router.delete('/:id', authenticateUser, validateOrganizationAccess, requireAdmin
 
   if (error) {
     return res.status(500).json({ error: 'Failed to delete service' });
+  }
+
+  // Trigger Prometheus sync if the deleted service had target_url
+  if (service && service.target_url) {
+    try {
+      await triggerPrometheusSync();
+    } catch (syncError) {
+      console.error('[DELETE /services/:id] Prometheus sync error:', syncError);
+      // Don't fail the request, just log the error
+    }
   }
 
   res.json({ message: 'Service deleted successfully' });

@@ -9,5 +9,16 @@
       "service_id": "590398ef-e390-43ce-8e09-b1b333c4dc94",
       "service_name": "live_kit_infra"
     }
+  },
+  {
+    "targets": [
+      "https://supabase.com/dashboard/project/drabrfedrqoxjeqleodj/database/schemas"
+    ],
+    "labels": {
+      "org_id": "e009b6af-b21c-4949-9ff0-6dadbbd9de2c",
+      "org_name": "plivo",
+      "service_id": "5994bce8-2835-465e-b94b-47de88b21fdb",
+      "service_name": "voi_agent_"
+    }
   }
 ]

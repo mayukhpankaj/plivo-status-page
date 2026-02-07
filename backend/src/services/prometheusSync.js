@@ -2,11 +2,25 @@ import fs from 'fs';
 import path from 'path';
 import { supabaseAdmin } from '../config/supabase.js';
 
+let prometheusSyncInstance = null;
+
+export function setPrometheusSyncInstance(instance) {
+  prometheusSyncInstance = instance;
+}
+
+export async function triggerPrometheusSync() {
+  if (prometheusSyncInstance) {
+    console.log('[Prometheus Sync] Triggering sync due to service change');
+    return await prometheusSyncInstance.manualSync();
+  } else {
+    console.log('[Prometheus Sync] No sync instance available, skipping');
+    return { success: false, message: 'Prometheus sync not initialized' };
+  }
+}
+
 class PrometheusServiceSync {
   constructor(configPath) {
     this.configPath = configPath || process.env.PROMETHEUS_SERVICES_FILE || './prometheus-services.json';
-    this.syncInterval = parseInt(process.env.PROMETHEUS_SYNC_INTERVAL || '300000'); // 30 seconds default
-    this.intervalId = null;
     
     // Ensure directory exists
     const dir = path.dirname(this.configPath);
@@ -103,25 +117,12 @@ class PrometheusServiceSync {
     }
   }
 
-  start() {
-    console.log(`[Prometheus Sync] Starting periodic sync every ${this.syncInterval}ms`);
+  async initialize() {
+    console.log(`[Prometheus Sync] Initializing sync on startup`);
     console.log(`[Prometheus Sync] Config file: ${this.configPath}`);
     
-    // Initial sync
-    this.syncToFile();
-    
-    // Set up periodic sync
-    this.intervalId = setInterval(() => {
-      this.syncToFile();
-    }, this.syncInterval);
-  }
-
-  stop() {
-    if (this.intervalId) {
-      clearInterval(this.intervalId);
-      this.intervalId = null;
-      console.log('[Prometheus Sync] Stopped periodic sync');
-    }
+    // Initial sync on startup
+    return await this.syncToFile();
   }
 
   async manualSync() {
