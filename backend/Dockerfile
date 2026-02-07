@@ -43,7 +43,7 @@ RUN mkdir -p /etc/prometheus
 EXPOSE 8080 9090 9115
 
 # Health check for backend
-HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
   CMD node -e "require('http').get('http://localhost:8080/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
 
 # Start script to run both processes
