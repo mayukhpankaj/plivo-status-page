@@ -225,9 +225,14 @@ export const Dashboard = () => {
             <p className="text-sm text-blue-700 mb-3">
               Your public status page is available at:
             </p>
-            <code className="block bg-white px-3 py-2 rounded border border-blue-200 text-sm">
+            <a
+              href={`${window.location.origin}/status/${currentOrganization.slug}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block bg-white px-3 py-2 rounded border border-blue-200 text-sm text-blue-600 hover:text-blue-800 hover:bg-blue-50 transition-colors"
+            >
               {window.location.origin}/status/{currentOrganization.slug}
-            </code>
+            </a>
           </div>
         )}
       </div>

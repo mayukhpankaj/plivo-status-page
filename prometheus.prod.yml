@@ -41,3 +41,10 @@ scrape_configs:
         target_label: service_id
       - source_labels: [service_name]
         target_label: service_name
+
+  # Backend application metrics (if you add metrics endpoint)
+  - job_name: 'backend'
+    static_configs:
+      - targets: ['backend:5000']
+    metrics_path: /metrics
+    scrape_interval: 30s

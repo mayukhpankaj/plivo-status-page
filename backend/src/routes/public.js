@@ -231,6 +231,7 @@ router.get('/status/:orgSlug/:serviceId', asyncHandler(async (req, res) => {
     
     for (const [key, query] of Object.entries(queries)) {
       try {
+        console.log(`Querying ${key} with:`, query);
         const response = await axios.get(`${PROMETHEUS_URL}/api/v1/query_range`, {
           params: {
             query,
@@ -242,15 +243,21 @@ router.get('/status/:orgSlug/:serviceId', asyncHandler(async (req, res) => {
         });
 
         if (response.data.status === 'success' && response.data.data.result.length > 0) {
+          console.log(`Success for ${key}:`, response.data.data.result.length, 'data points');
           metricsData[key] = response.data.data.result[0].values.map(([timestamp, value]) => ({
             timestamp: timestamp * 1000,
             value: parseFloat(value)
           }));
         } else {
+          console.log(`No data for ${key}:`, response.data.status, response.data.data.result.length);
           metricsData[key] = [];
         }
       } catch (error) {
         console.error(`Error fetching ${key} metric:`, error.message);
+        if (error.response) {
+          console.error(`Response status:`, error.response.status);
+          console.error(`Response data:`, JSON.stringify(error.response.data, null, 2));
+        }
         metricsData[key] = [];
       }
     }

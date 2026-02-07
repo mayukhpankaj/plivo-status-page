@@ -5,7 +5,7 @@ import { supabaseAdmin } from '../config/supabase.js';
 class PrometheusServiceSync {
   constructor(configPath) {
     this.configPath = configPath || process.env.PROMETHEUS_SERVICES_FILE || './prometheus-services.json';
-    this.syncInterval = parseInt(process.env.PROMETHEUS_SYNC_INTERVAL || '30000'); // 30 seconds default
+    this.syncInterval = parseInt(process.env.PROMETHEUS_SYNC_INTERVAL || '300000'); // 30 seconds default
     this.intervalId = null;
     
     // Ensure directory exists
