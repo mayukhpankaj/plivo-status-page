@@ -9,7 +9,7 @@ if [ -z "$PROJECT_ID" ]; then
     echo -e "${RED}Error: No GCP project set. Run: gcloud config set project YOUR_PROJECT_ID${NC}"
     exit 1
 fi
-SERVICE_NAME="status-page-backend"
+SERVICE_NAME="statusman"
 REGION="asia-south1"  # Mumbai region, change as needed
 IMAGE_NAME="gcr.io/${PROJECT_ID}/${SERVICE_NAME}"
 FRONTEND_URL="https://frontend-pi-seven-10.vercel.app"

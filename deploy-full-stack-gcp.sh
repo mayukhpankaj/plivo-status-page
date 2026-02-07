@@ -4,7 +4,7 @@
 # Deploys Backend + Monitoring Stack to GCP
 
 # Configuration
-PROJECT_ID="476326688061"  # Inferred from Cloud Run URL
+PROJECT_ID="abstract-arc-459719-c4"  # Updated to match actual GCP project
 REGION="asia-south1"  # Mumbai region, change as needed
 BACKEND_SERVICE_NAME="status-page-backend"
 PROMETHEUS_SERVICE_NAME="prometheus"
