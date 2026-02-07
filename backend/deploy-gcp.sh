@@ -4,7 +4,11 @@
 # Production Environment
 
 # Configuration
-PROJECT_ID="your-gcp-project-id"  # CHANGE THIS to your GCP project ID
+PROJECT_ID=$(gcloud config get-value project 2>/dev/null)
+if [ -z "$PROJECT_ID" ]; then
+    echo -e "${RED}Error: No GCP project set. Run: gcloud config set project YOUR_PROJECT_ID${NC}"
+    exit 1
+fi
 SERVICE_NAME="status-page-backend"
 REGION="asia-south1"  # Mumbai region, change as needed
 IMAGE_NAME="gcr.io/${PROJECT_ID}/${SERVICE_NAME}"
