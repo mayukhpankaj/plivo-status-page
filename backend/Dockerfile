@@ -1,23 +1,8 @@
-# Multi-stage build for Backend + Prometheus + Blackbox Exporter
-
-# Stage 1: Prometheus
-FROM prom/prometheus:latest as prometheus-stage
-
-# Stage 2: Blackbox Exporter
-FROM prom/blackbox-exporter:latest as blackbox-stage
-
-# Stage 3: Backend with monitoring tools included
+# Simple Backend-Only Dockerfile for Cloud Run
 FROM node:20-alpine
 
 # Install curl for health checks
 RUN apk add --no-cache curl
-
-# Copy Prometheus binaries from stage 1
-COPY --from=prometheus-stage /bin/prometheus /usr/local/bin/prometheus
-COPY --from=prometheus-stage /bin/promtool /usr/local/bin/promtool
-
-# Copy Blackbox Exporter from stage 2
-COPY --from=blackbox-stage /bin/blackbox_exporter /usr/local/bin/blackbox_exporter
 
 WORKDIR /app
 
@@ -30,24 +15,15 @@ RUN npm ci --only=production
 # Copy application code
 COPY . .
 
-# Copy Prometheus configuration
-COPY prometheus.yml /etc/prometheus/prometheus.yml
-
-# Copy Blackbox Exporter configuration
-COPY blackbox.yml /etc/blackbox_exporter/config.yml
-
-# Create directory for Prometheus service discovery file
+# Create directory for Prometheus service discovery file (for future use)
 RUN mkdir -p /etc/prometheus
 
-# Expose ports
-EXPOSE 8080 9090 9115
+# Expose port
+EXPOSE 8080
 
-# Simple health check - just check if backend is listening
-HEALTHCHECK --interval=60s --timeout=30s --start-period=60s --retries=3 \
+# Simple health check
+HEALTHCHECK --interval=60s --timeout=10s --start-period=30s --retries=3 \
   CMD curl -f http://localhost:8080/health || exit 1
 
-# Start script to run both processes
-COPY start.sh /start.sh
-RUN chmod +x /start.sh
-
-CMD ["/start.sh"]
+# Start the backend
+CMD ["node", "src/server.js"]
