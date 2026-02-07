@@ -1,0 +1,43 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  # Prometheus self-monitoring
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # Blackbox Exporter self-monitoring (single container)
+  - job_name: 'blackbox'
+    static_configs:
+      - targets: ['localhost:9115']
+
+  # Dynamic service discovery from backend using Blackbox Exporter
+  - job_name: 'blackbox-http'
+    metrics_path: /probe
+    params:
+      module: [http_2xx]
+    file_sd_configs:
+      - files:
+          - /etc/prometheus/services.json
+        refresh_interval: 10s
+    
+    relabel_configs:
+      # Use the target URL as the probe target
+      - source_labels: [__address__]
+        target_label: __param_target
+      # Set the blackbox exporter as the actual scrape target (single container)
+      - target_label: __address__
+        replacement: localhost:9115
+      # Keep original labels
+      - source_labels: [__param_target]
+        target_label: instance
+      - source_labels: [org_id]
+        target_label: org_id
+      - source_labels: [org_name]
+        target_label: org_name
+      - source_labels: [service_id]
+        target_label: service_id
+      - source_labels: [service_name]
+        target_label: service_name

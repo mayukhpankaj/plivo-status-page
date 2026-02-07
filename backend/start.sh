@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Start Blackbox Exporter in background
+blackbox_exporter --config.file=/etc/blackbox_exporter/config.yml &
+
 # Start Prometheus in background
 prometheus --config.file=/etc/prometheus/prometheus.yml \
          --storage.tsdb.path=/prometheus \
