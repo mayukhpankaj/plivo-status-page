@@ -42,9 +42,9 @@ RUN mkdir -p /etc/prometheus
 # Expose ports
 EXPOSE 8080 9090 9115
 
-# Health check for backend
-HEALTHCHECK --interval=300s --timeout=100s --start-period=30s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:8080/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
+# Simple health check - just check if backend is listening
+HEALTHCHECK --interval=60s --timeout=30s --start-period=60s --retries=3 \
+  CMD curl -f http://localhost:8080/health || exit 1
 
 # Start script to run both processes
 COPY start.sh /start.sh
