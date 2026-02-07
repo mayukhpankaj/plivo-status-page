@@ -88,13 +88,13 @@ gcloud run deploy ${BACKEND_SERVICE_NAME} \
     --platform managed \
     --region ${REGION} \
     --allow-unauthenticated \
-    --port 5000 \
+    --port 8080 \
     --memory 512Mi \
     --cpu 1 \
     --min-instances 0 \
     --max-instances 10 \
     --timeout 300 \
-    --set-env-vars "NODE_ENV=production,PORT=5000,PROMETHEUS_SYNC_ENABLED=true,CORS_ORIGIN=${FRONTEND_URL}" \
+    --set-env-vars "NODE_ENV=production,PORT=8080,PROMETHEUS_SYNC_ENABLED=true,CORS_ORIGIN=${FRONTEND_URL}" \
     --set-secrets "SUPABASE_URL=SUPABASE_URL:latest,SUPABASE_ANON_KEY=SUPABASE_ANON_KEY:latest,SUPABASE_SERVICE_KEY=SUPABASE_SERVICE_KEY:latest"
 
 # Deploy Prometheus
