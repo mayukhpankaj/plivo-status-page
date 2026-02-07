@@ -16,6 +16,12 @@ import PrometheusServiceSync, { setPrometheusSyncInstance } from './services/pro
 
 dotenv.config();
 
+// Debug logging for environment variables
+console.log('🔧 Environment Variables:');
+console.log('CORS_ORIGIN:', process.env.CORS_ORIGIN);
+console.log('NODE_ENV:', process.env.NODE_ENV);
+console.log('PORT:', process.env.PORT);
+
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -34,7 +40,8 @@ app.use(express.urlencoded({ extended: true }));
 
 // Handle preflight requests for all routes
 app.options('*', (req, res) => {
-  res.header('Access-Control-Allow-Origin', process.env.CORS_ORIGIN || 'http://localhost:5173');
+  const allowedOrigin = process.env.CORS_ORIGIN || 'http://localhost:5173';
+  res.header('Access-Control-Allow-Origin', allowedOrigin);
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
   res.header('Access-Control-Allow-Credentials', 'true');
