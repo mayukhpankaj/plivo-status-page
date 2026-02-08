@@ -6,12 +6,12 @@ scrape_configs:
   # Prometheus self-monitoring
   - job_name: 'prometheus'
     static_configs:
-      - targets: ['127.0.0.1:9090']
+      - targets: ['localhost:9090']
 
   # Blackbox Exporter self-monitoring (single container)
   - job_name: 'blackbox'
     static_configs:
-      - targets: ['127.0.0.1:9115']
+      - targets: ['localhost:9115']
 
   # Dynamic service discovery from backend using Blackbox Exporter
   - job_name: 'blackbox-http'
@@ -29,7 +29,7 @@ scrape_configs:
         target_label: __param_target
       # Set the blackbox exporter as the actual scrape target (single container)
       - target_label: __address__
-        replacement: 127.0.0.1:9115
+        replacement: localhost:9115
       # Keep original labels
       - source_labels: [__param_target]
         target_label: instance

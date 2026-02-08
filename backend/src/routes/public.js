@@ -5,7 +5,7 @@ import axios from 'axios';
 
 const router = express.Router();
 
-const PROMETHEUS_URL = process.env.PROMETHEUS_URL || 'http://127.0.0.1:9090';
+const PROMETHEUS_URL = process.env.PROMETHEUS_URL || 'http://localhost:9090';
 
 router.get('/status/:orgSlug', asyncHandler(async (req, res) => {
   const { orgSlug } = req.params;
