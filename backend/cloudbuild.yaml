@@ -24,15 +24,15 @@ steps:
       - '--port'
       - '8080'
       - '--memory'
-      - '512Mi'
+      - '1Gi'
       - '--cpu'
-      - '1'
+      - '2'
       - '--min-instances'
       - '0'
       - '--max-instances'
       - '10'
       - '--set-env-vars'
-      - 'NODE_ENV=production,PORTNO=8080,PROMETHEUS_SYNC_ENABLED=true,CORS_ORIGIN=https://frontend-pi-seven-10.vercel.app'
+      - 'NODE_ENV=production,PORTNO=8080,PROMETHEUS_SYNC_ENABLED=true,CORS_ORIGIN=https://frontend-pi-seven-10.vercel.app,PROMETHEUS_URL=http://127.0.0.1:9090'
 
 images:
   - 'gcr.io/$PROJECT_ID/statusman'
