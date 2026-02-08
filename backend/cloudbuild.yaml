@@ -7,7 +7,7 @@ steps:
   - name: 'gcr.io/cloud-builders/docker'
     args: ['push', 'gcr.io/$PROJECT_ID/statusman']
   
-  # Deploy container image to Cloud Run
+  # Deploy container image to Cloud Run with explicit unauthenticated access
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: gcloud
     args:
@@ -32,7 +32,7 @@ steps:
       - '--max-instances'
       - '10'
       - '--set-env-vars'
-      - 'NODE_ENV=production,PORT=8080,PROMETHEUS_SYNC_ENABLED=true,CORS_ORIGIN=https://frontend-pi-seven-10.vercel.app'
+      - 'NODE_ENV=production,PORTNO=8080,PROMETHEUS_SYNC_ENABLED=true,CORS_ORIGIN=https://frontend-pi-seven-10.vercel.app'
 
 images:
   - 'gcr.io/$PROJECT_ID/statusman'

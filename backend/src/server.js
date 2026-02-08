@@ -20,10 +20,10 @@ dotenv.config();
 console.log('🔧 Environment Variables:');
 console.log('CORS_ORIGIN:', process.env.CORS_ORIGIN);
 console.log('NODE_ENV:', process.env.NODE_ENV);
-console.log('PORT:', process.env.PORT);
+console.log('PORTNO:', process.env.PORTNO);
 
 const app = express();
-const PORT = process.env.PORT || 8080;
+const PORTNO = process.env.PORTNO || 8080;
 
 app.use(helmet({
   crossOriginResourcePolicy: { policy: "cross-origin" }
@@ -109,10 +109,10 @@ if (process.env.PROMETHEUS_SYNC_ENABLED === 'true') {
   });
 }
 
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`🚀 Server running on port ${PORT}`);
+app.listen(PORTNO, '0.0.0.0', () => {
+  console.log(`🚀 Server running on port ${PORTNO}`);
   console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`🔗 Health check: http://localhost:${PORT}/health`);
+  console.log(`🔗 Health check: http://localhost:${PORTNO}/health`);
   console.log(`🔗 CORS Origin: ${process.env.CORS_ORIGIN || 'http://localhost:5173'}`);
 });
 
