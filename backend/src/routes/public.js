@@ -10,7 +10,12 @@ const PROMETHEUS_URL = process.env.PROMETHEUS_URL || 'http://127.0.0.1:9090';
 router.get('/debug/prometheus', asyncHandler(async (req, res) => {
   const debug = {
     prometheus_url: PROMETHEUS_URL,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
+    env_vars: {
+      NODE_ENV: process.env.NODE_ENV,
+      PROMETHEUS_SYNC_ENABLED: process.env.PROMETHEUS_SYNC_ENABLED,
+      PROMETHEUS_URL: process.env.PROMETHEUS_URL
+    }
   };
 
   try {
@@ -27,6 +32,7 @@ router.get('/debug/prometheus', asyncHandler(async (req, res) => {
     // Check available metrics
     const metricsResponse = await axios.get(`${PROMETHEUS_URL}/api/v1/label/__name__/values`, { timeout: 3000 });
     debug.available_metrics = metricsResponse.data.data.slice(0, 10); // First 10 metrics
+    debug.probe_metrics = metricsResponse.data.data.filter(m => m.includes('probe'));
   } catch (error) {
     debug.available_metrics_error = error.message;
   }
@@ -38,10 +44,32 @@ router.get('/debug/prometheus', asyncHandler(async (req, res) => {
     debug.targets = targetsResponse.data.data.activeTargets.map(t => ({
       job: t.labels.job,
       instance: t.labels.instance,
-      health: t.health
+      health: t.health,
+      service_id: t.labels.service_id
     }));
   } catch (error) {
     debug.targets_error = error.message;
+  }
+
+  // Check if services.json file exists and has content
+  try {
+    const fs = await import('fs');
+    if (fs.existsSync('./prometheus-services.json')) {
+      const servicesData = JSON.parse(fs.readFileSync('./prometheus-services.json', 'utf8'));
+      debug.services_file = {
+        exists: true,
+        services_count: servicesData.length,
+        services: servicesData.map(s => ({
+          service_id: s.labels?.service_id,
+          service_name: s.labels?.service_name,
+          target: s.targets?.[0]
+        }))
+      };
+    } else {
+      debug.services_file = { exists: false };
+    }
+  } catch (error) {
+    debug.services_file_error = error.message;
   }
 
   res.json(debug);
