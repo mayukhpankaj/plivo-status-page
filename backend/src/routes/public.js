@@ -7,6 +7,46 @@ const router = express.Router();
 
 const PROMETHEUS_URL = process.env.PROMETHEUS_URL || 'http://127.0.0.1:9090';
 
+router.get('/debug/prometheus', asyncHandler(async (req, res) => {
+  const debug = {
+    prometheus_url: PROMETHEUS_URL,
+    timestamp: new Date().toISOString()
+  };
+
+  try {
+    // Check Prometheus health
+    const healthResponse = await axios.get(`${PROMETHEUS_URL}/-/healthy`, { timeout: 3000 });
+    debug.prometheus_health = healthResponse.status === 200 ? 'healthy' : 'unhealthy';
+    debug.prometheus_health_status = healthResponse.status;
+  } catch (error) {
+    debug.prometheus_health = 'error';
+    debug.prometheus_health_error = error.message;
+  }
+
+  try {
+    // Check available metrics
+    const metricsResponse = await axios.get(`${PROMETHEUS_URL}/api/v1/label/__name__/values`, { timeout: 3000 });
+    debug.available_metrics = metricsResponse.data.data.slice(0, 10); // First 10 metrics
+  } catch (error) {
+    debug.available_metrics_error = error.message;
+  }
+
+  try {
+    // Check targets
+    const targetsResponse = await axios.get(`${PROMETHEUS_URL}/api/v1/targets`, { timeout: 3000 });
+    debug.active_targets = targetsResponse.data.data.activeTargets.length;
+    debug.targets = targetsResponse.data.data.activeTargets.map(t => ({
+      job: t.labels.job,
+      instance: t.labels.instance,
+      health: t.health
+    }));
+  } catch (error) {
+    debug.targets_error = error.message;
+  }
+
+  res.json(debug);
+}));
+
 router.get('/status/:orgSlug', asyncHandler(async (req, res) => {
   const { orgSlug } = req.params;
 
