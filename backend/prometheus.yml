@@ -20,7 +20,7 @@ scrape_configs:
       module: [http_2xx]
     file_sd_configs:
       - files:
-          - /etc/prometheus/services.json
+          - /app/prometheus-services.json
         refresh_interval: 10s
     
     relabel_configs:
