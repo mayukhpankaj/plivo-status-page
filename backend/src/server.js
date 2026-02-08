@@ -109,10 +109,17 @@ if (process.env.PROMETHEUS_SYNC_ENABLED === 'true') {
   });
 }
 
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`🔗 Health check: http://localhost:${PORT}/health`);
+  console.log(`🔗 CORS Origin: ${process.env.CORS_ORIGIN || 'http://localhost:5173'}`);
+});
+
+// Handle startup errors
+app.on('error', (error) => {
+  console.error('❌ Server startup error:', error);
+  process.exit(1);
 });
 
 export default app;

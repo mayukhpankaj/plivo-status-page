@@ -1,0 +1,38 @@
+steps:
+  # Build the container image using simple Dockerfile
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-f', 'Dockerfile.simple', '-t', 'gcr.io/$PROJECT_ID/statusman', '.']
+  
+  # Push the container image to Container Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$PROJECT_ID/statusman']
+  
+  # Deploy container image to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - 'statusman'
+      - '--image'
+      - 'gcr.io/$PROJECT_ID/statusman'
+      - '--region'
+      - 'asia-south1'
+      - '--platform'
+      - 'managed'
+      - '--allow-unauthenticated'
+      - '--port'
+      - '8080'
+      - '--memory'
+      - '512Mi'
+      - '--cpu'
+      - '1'
+      - '--min-instances'
+      - '0'
+      - '--max-instances'
+      - '10'
+      - '--set-env-vars'
+      - 'NODE_ENV=production,PORT=8080,PROMETHEUS_SYNC_ENABLED=false,CORS_ORIGIN=https://frontend-pi-seven-10.vercel.app'
+
+images:
+  - 'gcr.io/$PROJECT_ID/statusman'
