@@ -206,6 +206,14 @@ router.get('/status/:orgSlug/:serviceId', asyncHandler(async (req, res) => {
 
   let metrics = null;
   try {
+    // First check if Prometheus is available
+    console.log('Checking Prometheus availability...');
+    const healthResponse = await axios.get(`${PROMETHEUS_URL}/-/healthy`, { timeout: 3000 });
+    if (healthResponse.status !== 200) {
+      throw new Error('Prometheus not healthy');
+    }
+    console.log('✅ Prometheus is healthy');
+
     const timeRangeMap = {
       '1h': '1h',
       '6h': '6h',

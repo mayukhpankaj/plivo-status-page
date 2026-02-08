@@ -109,12 +109,25 @@ if (process.env.PROMETHEUS_SYNC_ENABLED === 'true') {
   });
 }
 
-app.listen(PORTNO, '0.0.0.0', () => {
-  console.log(`🚀 Server running on port ${PORTNO}`);
-  console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`🔗 Health check: http://localhost:${PORTNO}/health`);
-  console.log(`🔗 CORS Origin: ${process.env.CORS_ORIGIN || 'http://localhost:5173'}`);
-});
+// In production, wait a bit before starting to ensure monitoring services are ready
+if (process.env.NODE_ENV === 'production') {
+  console.log('⏳ Production mode: waiting for monitoring services to start...');
+  setTimeout(() => {
+    app.listen(PORTNO, '0.0.0.0', () => {
+      console.log(`🚀 Server running on port ${PORTNO}`);
+      console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
+      console.log(`🔗 Health check: http://localhost:${PORTNO}/health`);
+      console.log(`🔗 CORS Origin: ${process.env.CORS_ORIGIN || 'http://localhost:5173'}`);
+    });
+  }, 15000); // 15 second delay
+} else {
+  app.listen(PORTNO, '0.0.0.0', () => {
+    console.log(`🚀 Server running on port ${PORTNO}`);
+    console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`🔗 Health check: http://localhost:${PORTNO}/health`);
+    console.log(`🔗 CORS Origin: ${process.env.CORS_ORIGIN || 'http://localhost:5173'}`);
+  });
+}
 
 // Handle startup errors
 app.on('error', (error) => {

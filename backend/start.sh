@@ -12,12 +12,37 @@ prometheus --config.file=/etc/prometheus/prometheus.yml \
          --storage.tsdb.path=/prometheus \
          --web.console.libraries=/usr/share/prometheus/console_libraries \
          --web.console.templates=/usr/share/prometheus/consoles \
-         --web.listen-address=:9090 &
+         --web.listen-address=127.0.0.1:9090 &
 PROMETHEUS_PID=$!
 echo "Prometheus started (PID: $PROMETHEUS_PID)"
 
-# Give services a moment to start
-sleep 5
+# Give services time to start
+echo "Waiting for services to be ready..."
+sleep 10
+
+# Check if Prometheus is responding
+echo "Checking Prometheus health..."
+for i in 1 2 3 4 5; do
+    if curl -s http://127.0.0.1:9090/-/healthy > /dev/null 2>&1; then
+        echo "✅ Prometheus is healthy"
+        break
+    else
+        echo "⏳ Waiting for Prometheus... (attempt $i/5)"
+        sleep 2
+    fi
+done
+
+# Check if Blackbox Exporter is responding
+echo "Checking Blackbox Exporter health..."
+for i in 1 2 3 4 5; do
+    if curl -s http://127.0.0.1:9115/-/healthy > /dev/null 2>&1; then
+        echo "✅ Blackbox Exporter is healthy"
+        break
+    else
+        echo "⏳ Waiting for Blackbox Exporter... (attempt $i/5)"
+        sleep 2
+    fi
+done
 
 echo "Starting Backend..."
 # Start backend in foreground (this will keep the container running)
