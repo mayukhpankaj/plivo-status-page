@@ -221,7 +221,7 @@ router.get('/status/:orgSlug/:serviceId', asyncHandler(async (req, res) => {
                  timeRange === '7d' ? '1h' : '2h';
 
     const queries = {
-      uptime: `up{service_id="${serviceId}"}`,
+      uptime: `probe_success{service_id="${serviceId}"}`,
       responseTime: `probe_duration_seconds{service_id="${serviceId}"}`,
       httpStatus: `probe_http_status_code{service_id="${serviceId}"}`,
       sslExpiry: `probe_ssl_earliest_cert_expiry{service_id="${serviceId}"}`
@@ -262,7 +262,7 @@ router.get('/status/:orgSlug/:serviceId', asyncHandler(async (req, res) => {
       }
     }
 
-    const currentQuery = `up{service_id="${serviceId}"}`;
+    const currentQuery = `probe_success{service_id="${serviceId}"}`;
     try {
       const currentResponse = await axios.get(`${PROMETHEUS_URL}/api/v1/query`, {
         params: { query: currentQuery },
