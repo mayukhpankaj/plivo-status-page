@@ -25,23 +25,43 @@ console.log('PORT:', process.env.PORT);
 const app = express();
 const PORT = process.env.PORT || 8080;
 
-app.use(helmet());
-app.use(cors({
-  origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" }
+}));
+// Configure CORS with explicit options
+const corsOptions = {
+  origin: function (origin, callback) {
+    const allowedOrigins = [process.env.CORS_ORIGIN || 'http://localhost:5173'];
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
   preflightContinue: false,
   optionsSuccessStatus: 204
-}));
+};
+
+app.use(cors(corsOptions));
 app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Handle preflight requests for all routes
 app.options('*', (req, res) => {
+  const origin = req.headers.origin;
   const allowedOrigin = process.env.CORS_ORIGIN || 'http://localhost:5173';
-  res.header('Access-Control-Allow-Origin', allowedOrigin);
+  
+  // Set the origin header if it matches or if there's no origin
+  if (!origin || origin === allowedOrigin) {
+    res.header('Access-Control-Allow-Origin', origin || allowedOrigin);
+  }
+  
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
   res.header('Access-Control-Allow-Credentials', 'true');
