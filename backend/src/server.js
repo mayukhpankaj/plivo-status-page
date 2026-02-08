@@ -31,14 +31,26 @@ app.use(helmet({
 // Configure CORS with explicit options
 const corsOptions = {
   origin: function (origin, callback) {
-    const allowedOrigins = [process.env.CORS_ORIGIN || 'http://localhost:5173'];
+    // Temporarily allow all origins for debugging
+    console.log('CORS request from origin:', origin);
+    return callback(null, true);
+    
+    // Original logic (commented out for debugging):
+    /*
+    const allowedOrigins = [
+      process.env.CORS_ORIGIN || 'http://localhost:5173',
+      'https://frontend-pi-seven-10.vercel.app',
+      'https://frontend-pi-seven-10.vercel.app/'
+    ];
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
     if (allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
+      console.log('CORS blocked origin:', origin);
       callback(new Error('Not allowed by CORS'));
     }
+    */
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -55,11 +67,15 @@ app.use(express.urlencoded({ extended: true }));
 // Handle preflight requests for all routes
 app.options('*', (req, res) => {
   const origin = req.headers.origin;
-  const allowedOrigin = process.env.CORS_ORIGIN || 'http://localhost:5173';
+  const allowedOrigins = [
+    process.env.CORS_ORIGIN || 'http://localhost:5173',
+    'https://frontend-pi-seven-10.vercel.app',
+    'https://frontend-pi-seven-10.vercel.app/'
+  ];
   
   // Set the origin header if it matches or if there's no origin
-  if (!origin || origin === allowedOrigin) {
-    res.header('Access-Control-Allow-Origin', origin || allowedOrigin);
+  if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+    res.header('Access-Control-Allow-Origin', origin || allowedOrigins[0]);
   }
   
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
