@@ -14,13 +14,20 @@ import internalRouter, { setPrometheusSync } from './routes/internal.js';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler.js';
 import PrometheusServiceSync, { setPrometheusSyncInstance } from './services/prometheusSync.js';
 
-dotenv.config();
+// Load environment variables based on NODE_ENV
+if (process.env.NODE_ENV === 'production') {
+  dotenv.config({ path: '.env.production' });
+} else {
+  dotenv.config();
+}
 
 // Debug logging for environment variables
 console.log('🔧 Environment Variables:');
 console.log('CORS_ORIGIN:', process.env.CORS_ORIGIN);
 console.log('NODE_ENV:', process.env.NODE_ENV);
 console.log('PORTNO:', process.env.PORTNO);
+console.log('PROMETHEUS_URL:', process.env.PROMETHEUS_URL);
+console.log('PROMETHEUS_SYNC_ENABLED:', process.env.PROMETHEUS_SYNC_ENABLED);
 
 const app = express();
 const PORTNO = process.env.PORTNO || 8080;
