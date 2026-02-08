@@ -31,12 +31,6 @@ app.use(helmet({
 // Configure CORS with explicit options
 const corsOptions = {
   origin: function (origin, callback) {
-    // Temporarily allow all origins for debugging
-    console.log('CORS request from origin:', origin);
-    return callback(null, true);
-    
-    // Original logic (commented out for debugging):
-    /*
     const allowedOrigins = [
       process.env.CORS_ORIGIN || 'http://localhost:5173',
       'https://frontend-pi-seven-10.vercel.app',
@@ -50,7 +44,6 @@ const corsOptions = {
       console.log('CORS blocked origin:', origin);
       callback(new Error('Not allowed by CORS'));
     }
-    */
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
