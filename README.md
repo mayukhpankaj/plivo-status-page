@@ -1,6 +1,11 @@
-# Multi-Tenant Status Page Application
+# Multi-Tenant Realtime Status Page with Prometheus 
 
 A comprehensive, production-ready status page application with multi-organization support, team-based access control, and real-time incident management.
+
+## How it works ? 
+
+<img width="1690" height="1741" alt="image" src="https://github.com/user-attachments/assets/3587b941-c925-41a2-9cb7-ea84e4ce8366" />
+
 
 ## 🚀 Features
 
